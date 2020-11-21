@@ -33,12 +33,15 @@ async function toImage(src: ImageSrc): Promise<HTMLImageElement> {
 
 export async function clipImage(
   src: ImageSrc,
-  rect: Rectangle
+  rect: Rectangle,
+  size?: { width: number; height: number }
 ): Promise<string> {
+  const _size = size ?? { width: rect.width, height: rect.height }
+
   const image = await toImage(src)
   const canvas = document.createElement('canvas')
-  canvas.width = rect.width
-  canvas.height = rect.height
+  canvas.width = _size.width
+  canvas.height = _size.height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Failed to get 2d-context from a canvas.')
 
@@ -50,8 +53,8 @@ export async function clipImage(
     rect.height,
     0,
     0,
-    rect.width,
-    rect.height
+    canvas.width,
+    canvas.height
   )
   return canvas.toDataURL()
 }

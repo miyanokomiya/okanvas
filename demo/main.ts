@@ -50,6 +50,7 @@ function ReadImageFileDemo() {
 function ClipImageDemo() {
   const [base64, setBase64] = useState('')
   const [clippedBase64, setClippedBase64] = useState('')
+  const [resizedBase64, setResizedBase64] = useState('')
 
   const onInput = useCallback(async (e: any) => {
     if (!e?.target?.files) return
@@ -64,17 +65,24 @@ function ClipImageDemo() {
     }
     const srcWithRect = await okanvas.files.drawRectOnImage(_image, rect)
     const _clippedBase64 = await okanvas.files.clipImage(_image, rect)
+    const _resizedBase64 = await okanvas.files.clipImage(_image, rect, {
+      width: rect.width * 2,
+      height: rect.height,
+    })
     setBase64(srcWithRect)
     setClippedBase64(_clippedBase64)
+    setResizedBase64(_resizedBase64)
   }, [])
 
   return h('div', null, [
     h('h2', null, 'clipImage'),
     h('input', { type: 'file', accept: 'image/*', onInput }, 'clipImage'),
-    h('p', null, 'src'),
+    h('p', null, 'src & rectangle'),
     ImageRect({ src: base64 }),
-    h('p', null, 'dist'),
+    h('p', null, 'clipped'),
     ImageRect({ src: clippedBase64 }),
+    h('p', null, 'clipped & resized: width * 2'),
+    ImageRect({ src: resizedBase64 }),
   ])
 }
 
