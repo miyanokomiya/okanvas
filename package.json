@@ -1,0 +1,40 @@
+{
+  "name": "okanvas",
+  "version": "0.0.1",
+  "main": "./dist/okanvas.min.js",
+  "module": "./dist/okanvas.esm.min.js",
+  "types": "./dist/okanvas.d.ts",
+  "repository": "https://github.com/miyanokomiya/okanvas.git",
+  "author": "miyanokomiya <tomoya.hstexze24632@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "yarn eslint ./src ./test  ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
+    "lint:fix": "yarn eslint --fix ./src ./test ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
+    "test": "jest --coverage",
+    "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.9",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "babel-jest": "^26.2.2",
+    "bili": "^5.0.5",
+    "eslint": "^7.6.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^24.0.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.2.2",
+    "parcel-bundler": "^1.11.0",
+    "prettier": "^2.0.5",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "ts-jest": "^26.1.4",
+    "typescript": "^4.1.2"
+  }
+}
