@@ -9,7 +9,7 @@ jobs:
       matrix:
         node-version: [12.x]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Run tests with ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -18,7 +18,24 @@ jobs:
         run: |
           yarn install
           yarn lint
-          yarn build
           yarn test
+          yarn build:demo
+          yarn build
         env:
           CI: true
+  deploy_demo:
+    if: github.ref = 'refs/heads/main'
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - run: yarn build:demo
+      - name: Deploy Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist-demo
