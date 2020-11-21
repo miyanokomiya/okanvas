@@ -1,9 +1,8 @@
-![Main](https://github.com/miyanokomiya/okanvas/workflows/Main/badge.svg)
+![Main](https://github.com/miyanokomiya/okanvas/workflows/test/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # okanvas
-
-parse SVG to polygons
+some utils for a canvas
 
 ## demo
 https://miyanokomiya.github.io/okanvas/
