@@ -5,21 +5,20 @@
 
 parse SVG to polygons
 
+## demo
+https://miyanokomiya.github.io/okanvas/
+
 ## usage
-
-``` bash
-yarn add okanvas
-```
-
-```js
-import * as okanvas from okanvas
-```
+TODO: publish npm
 
 ## commnad
 
 ``` bash
 # install dependencies
 $ yarn install
+
+# start dev & demo server
+$ yarn demo
 
 # lint
 $ yarn lint

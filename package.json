@@ -14,7 +14,7 @@
     "lint:fix": "yarn eslint --fix ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
     "test": "jest --coverage",
     "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
-    "build:demo": "parcel build demo/index.html -d dist-demo",
+    "build:demo": "parcel build demo/index.html -d dist-demo --public-url .",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
