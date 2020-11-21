@@ -9,4 +9,5 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest',
   },
   transformIgnorePatterns: ['/node_modules/'],
+  testEnvironmentOptions: { resources: 'usable' },
 }
