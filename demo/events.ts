@@ -1,18 +1,17 @@
 import { h } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as okanvas from '../src/okanvas'
-import { Vector } from '../src/types'
 
-function vectorInfo(name: string, vector: Vector | null) {
+function vectorInfo(name: string, vector: okanvas.Vector | null) {
   return vector
     ? h('p', null, `${name}: { x: ${vector.x}, y: ${vector.y} }`)
     : h('p', null, `${name}: null`)
 }
 
 export function UseDragDemo() {
-  const [base, setBase] = useState<Vector | null>(null)
-  const [current, setCurrent] = useState<Vector | null>(null)
-  const [diff, setDiff] = useState<Vector | null>(null)
+  const [base, setBase] = useState<okanvas.Vector | null>(null)
+  const [current, setCurrent] = useState<okanvas.Vector | null>(null)
+  const [diff, setDiff] = useState<okanvas.Vector | null>(null)
   const [dragState, setDragState] = useState<any>(null)
 
   useEffect(() => {
