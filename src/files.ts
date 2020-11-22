@@ -1,11 +1,4 @@
-export interface Rectangle {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-export type ImageSrc = string | HTMLImageElement
+import { ImageSrc, Rectangle } from './types'
 
 export function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
