@@ -4,6 +4,7 @@
   "main": "./dist/okanvas.min.js",
   "module": "./dist/okanvas.esm.min.js",
   "types": "./dist/okanvas.d.ts",
+  "sideEffects": false,
   "repository": "https://github.com/miyanokomiya/okanvas.git",
   "author": "miyanokomiya <tomoya.hstexze24632@gmail.com>",
   "license": "MIT",
@@ -14,7 +15,7 @@
     "lint:fix": "yarn eslint --fix ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
     "test": "jest --coverage",
     "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
-    "build:demo": "parcel build demo/index.html -d dist-demo --public-url .",
+    "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url . --experimental-scope-hoisting",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
