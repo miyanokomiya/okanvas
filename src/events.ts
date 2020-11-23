@@ -2,7 +2,9 @@ import throttle from 'just-throttle'
 import type { Vector } from './types'
 
 const THROTTLE = 1000 / 60
-const CAN_TOUCH = 'ontouchstart' in window
+function canTouch(): boolean {
+  return 'ontouchstart' in window
+}
 
 export function isTouch(e: MouseEvent | TouchEvent): e is TouchEvent {
   return 'touches' in e
@@ -31,7 +33,7 @@ export function getPagePosition(e: MouseEvent | TouchEvent): Vector {
 }
 
 export function getPointInTarget(e: MouseEvent | TouchEvent): Vector {
-  const target = (e.currentTarget || e.target) as Element
+  const target = e.currentTarget as Element
   if (!target) return { x: 0, y: 0 }
 
   let x, y
@@ -54,7 +56,7 @@ export function getPointInTarget(e: MouseEvent | TouchEvent): Vector {
 }
 
 export function getTouchPointsInTarget(e: TouchEvent): Vector[] {
-  const target = (e.currentTarget || e.target) as Element
+  const target = e.currentTarget as Element
   if (!target) return []
 
   const ret = []
@@ -91,6 +93,7 @@ export function useDrag(
     dragging = true
     base = getPagePosition(e)
     current = { ...base }
+    past = { ...base }
     downAt = Date.now()
   }
 
@@ -99,14 +102,13 @@ export function useDrag(
       if (!dragging) return
       if (!base) return
       if (!current) return
+      if (!past) return
 
-      if (past) {
-        dragCallback({
-          base,
-          p: { ...current },
-          d: { x: current.x - past.x, y: current.y - past.y },
-        })
-      }
+      dragCallback({
+        base,
+        p: { ...current },
+        d: { x: current.x - past.x, y: current.y - past.y },
+      })
       past = { ...current }
     },
     THROTTLE,
@@ -140,20 +142,21 @@ export function useDrag(
   }
 }
 
-export function useWindowMouseEffect(listeners: {
+export function useWindowPointerEffect(listeners: {
   onDown?: (e: MouseEvent | TouchEvent) => void
   onMove?: (e: MouseEvent | TouchEvent) => void
   onUp?: () => void
 }) {
+  const _canTouch = canTouch()
   if (listeners.onDown) {
     window.addEventListener('mousedown', listeners.onDown, false)
-    if (CAN_TOUCH) {
+    if (_canTouch) {
       window.addEventListener('touchstart', listeners.onDown, false)
     }
   }
   if (listeners.onMove) {
     window.addEventListener('mousemove', listeners.onMove, false)
-    if (CAN_TOUCH) {
+    if (_canTouch) {
       window.addEventListener('touchmove', listeners.onMove, {
         capture: false,
         passive: false,
@@ -163,7 +166,7 @@ export function useWindowMouseEffect(listeners: {
   if (listeners.onUp) {
     window.addEventListener('mouseup', listeners.onUp, false)
     window.addEventListener('mouseleave', listeners.onUp, false)
-    if (CAN_TOUCH) {
+    if (_canTouch) {
       window.addEventListener('touchend', listeners.onUp, false)
       window.addEventListener('touchcancel', listeners.onUp, false)
     }
@@ -171,13 +174,13 @@ export function useWindowMouseEffect(listeners: {
   return () => {
     if (listeners.onDown) {
       window.removeEventListener('mousedown', listeners.onDown, false)
-      if (CAN_TOUCH) {
+      if (_canTouch) {
         window.removeEventListener('touchstart', listeners.onDown, false)
       }
     }
     if (listeners.onMove) {
       window.removeEventListener('mousemove', listeners.onMove, false)
-      if (CAN_TOUCH) {
+      if (_canTouch) {
         window.removeEventListener('touchmove', listeners.onMove, {
           capture: false,
         })
@@ -186,7 +189,7 @@ export function useWindowMouseEffect(listeners: {
     if (listeners.onUp) {
       window.removeEventListener('mouseup', listeners.onUp, false)
       window.removeEventListener('mouseleave', listeners.onUp, false)
-      if (CAN_TOUCH) {
+      if (_canTouch) {
         window.removeEventListener('touchend', listeners.onUp, false)
         window.removeEventListener('touchcancel', listeners.onUp, false)
       }

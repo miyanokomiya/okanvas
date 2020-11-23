@@ -21,7 +21,7 @@ export function UseDragDemo() {
       setDiff(arg.d)
     })
     setDragState(_dragState)
-    return okanvas.useWindowMouseEffect({
+    return okanvas.useWindowPointerEffect({
       onMove: _dragState.onMove,
       onUp: _dragState.onUp,
     })
