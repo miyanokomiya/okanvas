@@ -30,15 +30,22 @@ export function ImageRect(props: { src: string }) {
   )
 }
 
-export function ReadImageFileDemo() {
+export function useFileToBase64() {
   const [base64, setBase64] = useState('')
-
   const onInput = useCallback(async (e: any) => {
     if (!e?.target?.files) return
 
     const result = await okanvas.fileToBase64(e.target.files[0])
     setBase64(result)
   }, [])
+  return {
+    base64,
+    onInput,
+  }
+}
+
+export function ReadImageFileDemo() {
+  const { base64, onInput } = useFileToBase64()
 
   return h('div', null, [
     h('h2', null, 'fileToBase64'),
