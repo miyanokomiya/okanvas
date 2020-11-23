@@ -3,12 +3,17 @@ import { Size, Rectangle } from './types'
 export function getRate(
   viewSize: Size,
   objectSize: Size | null
-): { maxRate: number; rateW: number; rateH: number } {
-  if (!objectSize) return { maxRate: 1, rateW: 1, rateH: 1 }
+): { minRate: number; maxRate: number; rateW: number; rateH: number } {
+  if (!objectSize) return { minRate: 1, maxRate: 1, rateW: 1, rateH: 1 }
 
   const rateW = objectSize.width / viewSize.width
   const rateH = objectSize.height / viewSize.height
-  return { maxRate: Math.max(rateW, rateH), rateW, rateH }
+  return {
+    minRate: Math.min(rateW, rateH),
+    maxRate: Math.max(rateW, rateH),
+    rateW,
+    rateH,
+  }
 }
 
 export function getViewBoxSize(

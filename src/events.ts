@@ -77,13 +77,13 @@ export function getTouchPointsInTarget(e: TouchEvent): Vector[] {
   return ret
 }
 
-interface PointerListeners {
+export interface PointerListeners {
   onDown: (e: MouseOrTouchEvent) => void
   onMove: (e: MouseOrTouchEvent) => void
   onUp: () => void
 }
 
-interface DragArgs {
+export interface DragArgs {
   base: Vector
   p: Vector
   d: Vector

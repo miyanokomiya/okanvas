@@ -1,10 +1,23 @@
 import { h } from 'preact'
-import { useState, useEffect, useMemo } from 'preact/hooks'
+import { useState, useEffect, useMemo, useCallback } from 'preact/hooks'
 import * as okanvas from '../src/okanvas'
 import { useFileToBase64 } from './files'
 
+function getPedal(
+  p: okanvas.Vector,
+  base: okanvas.Vector,
+  vec: okanvas.Vector
+): okanvas.Vector {
+  const v1 = vec
+  const v2 = { x: p.x - base.x, y: p.y - base.y }
+  const dd = v1.x * v1.x + v1.y * v1.y
+  const dot = v1.x * v2.x + v1.y * v2.y
+  const t = dot / dd
+  return { x: v1.x * t, y: v1.y * t }
+}
+
 export function ClipDemo() {
-  const size = { width: 200, height: 200 }
+  const [size] = useState({ width: 300, height: 200 })
   const { base64, onInput } = useFileToBase64()
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [clipRect, setClipRect] = useState<okanvas.Rectangle>({
@@ -12,18 +25,48 @@ export function ClipDemo() {
     y: 0,
     ...size,
   })
-  const [dragState, setDragState] = useState<any>(null)
+  const [clipRectOrg, setClipRectOrg] = useState<okanvas.Rectangle | null>(null)
+  const [dragState, setDragState] = useState<okanvas.DragArgs | null>(null)
+  const [
+    dragListeners,
+    setDragListeners,
+  ] = useState<okanvas.PointerListeners | null>(null)
+  const [dragMode, setDragMode] = useState<'' | 'move' | 'resize'>('')
 
   useEffect(() => {
-    const _dragState = okanvas.useDrag((arg) => {
-      console.log(arg)
+    const _dragListeners = okanvas.useDrag((arg) => {
+      setDragState(arg)
     })
-    setDragState(_dragState)
+    setDragListeners(_dragListeners)
     return okanvas.useWindowPointerEffect({
-      onMove: _dragState.onMove,
-      onUp: _dragState.onUp,
+      onMove: _dragListeners.onMove,
+      onUp: () => {
+        _dragListeners.onUp()
+        setDragMode('')
+        setDragState(null)
+        setClipRectOrg(null)
+      },
     })
   }, [])
+
+  const onStartMove = useCallback(
+    (e: any) => {
+      if (!dragListeners) return
+      setDragMode('move')
+      setClipRectOrg(clipRect)
+      dragListeners.onDown(e)
+    },
+    [clipRect, dragListeners]
+  )
+  const onStartResize = useCallback(
+    (e: any) => {
+      if (!dragListeners) return
+      setDragMode('resize')
+      setClipRectOrg(clipRect)
+      dragListeners.onDown(e)
+    },
+    [clipRect, dragListeners]
+  )
 
   useEffect(() => {
     if (!base64) return
@@ -32,15 +75,6 @@ export function ClipDemo() {
     })
   }, [base64])
 
-  useEffect(() => {
-    if (!image) return
-    setClipRect({
-      ...clipRect,
-      width: image.width,
-      height: image.height,
-    })
-  }, [image])
-
   const scale = useMemo(() => {
     const { maxRate } = okanvas.getRate(size, image)
     return maxRate
@@ -48,10 +82,17 @@ export function ClipDemo() {
 
   const viewBox = useMemo(() => {
     const rect = okanvas.getCentralizedViewBox(size, image)
-    const pad = 8 * scale
-    return `${rect.x - pad} ${rect.y - pad} ${rect.width + pad * 2} ${
-      rect.height + pad * 2
-    }`
+    return `${rect.x} ${rect.y} ${rect.width} ${rect.height}`
+  }, [size, image, scale])
+
+  useEffect(() => {
+    const rect = okanvas.getCentralizedViewBox(size, image)
+    setClipRect({
+      x: rect.x,
+      y: rect.y,
+      width: size.width * scale,
+      height: size.height * scale,
+    })
   }, [size, image, scale])
 
   const imageElm = useMemo(() => {
@@ -64,6 +105,37 @@ export function ClipDemo() {
       height: image.height,
     })
   }, [image])
+
+  useEffect(() => {
+    if (!dragMode) return
+    if (!dragState) return
+    if (!clipRectOrg) return
+    if (dragMode === 'move') {
+      setClipRect({
+        ...clipRectOrg,
+        x: clipRectOrg.x + (dragState.p.x - dragState.base.x) * scale,
+        y: clipRectOrg.y + (dragState.p.y - dragState.base.y) * scale,
+      })
+    } else if (dragMode === 'resize') {
+      const beforeDiagonal = {
+        x: clipRectOrg.width + (dragState.p.x - dragState.base.x) * scale,
+        y: clipRectOrg.height + (dragState.p.y - dragState.base.y) * scale,
+      }
+      const afterDiagonal = getPedal(
+        beforeDiagonal,
+        { x: 0, y: 0 },
+        {
+          x: size.width,
+          y: size.height,
+        }
+      )
+      setClipRect({
+        ...clipRectOrg,
+        width: afterDiagonal.x,
+        height: afterDiagonal.y,
+      })
+    }
+  }, [clipRectOrg, dragMode, dragState, scale, size])
 
   const clipRectElm = useMemo(() => {
     if (!image) return null
@@ -82,17 +154,30 @@ export function ClipDemo() {
           stroke: 'red',
           'stroke-width': 4 * scale,
         }),
-        h('circle', {
-          cx: 0,
-          cy: 0,
-          r: 8 * scale,
-          fill: 'red',
-          stroke: 'none',
-        }),
+        h(
+          'g',
+          {
+            ...(dragListeners
+              ? { onMouseDown: onStartMove, onTouchStart: onStartMove }
+              : {}),
+          },
+          [
+            h('circle', {
+              cx: 0,
+              cy: 0,
+              r: 8 * scale,
+              fill: 'red',
+              stroke: 'none',
+            }),
+          ]
+        ),
         h(
           'g',
           {
             transform: `translate(${clipRect.width}, ${clipRect.height})`,
+            ...(dragListeners
+              ? { onMouseDown: onStartResize, onTouchStart: onStartResize }
+              : {}),
           },
           [
             h('circle', {
@@ -115,8 +200,9 @@ export function ClipDemo() {
       'div',
       {
         style: {
-          width: '200px',
-          height: '200px',
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+          padding: '8px',
           border: '1px solid #000',
           backgroundColor: '#ccc',
           overflow: 'hidden',
@@ -128,15 +214,10 @@ export function ClipDemo() {
           {
             xmlns: 'http://www.w3.org/2000/svg',
             viewBox,
-            ...(dragState
-              ? {
-                  onMouseDown: dragState.onDown,
-                  onTouchStart: dragState.onDown,
-                }
-              : {}),
             style: {
               width: '100%',
               height: '100%',
+              overflow: 'visible',
             },
           },
           [imageElm, clipRectElm]
