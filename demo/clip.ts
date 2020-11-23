@@ -1,4 +1,4 @@
-import { h } from 'preact'
+import { h, createElement } from 'preact'
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks'
 import * as okanvas from '../src/okanvas'
 import { useFileToBase64 } from './files'
@@ -17,13 +17,29 @@ function getPedal(
 }
 
 export function ClipDemo() {
-  const [size] = useState({ width: 300, height: 200 })
   const { base64, onInput } = useFileToBase64()
+
+  return h('div', null, [
+    h('h2', null, 'clipDemo'),
+    h('input', { type: 'file', onInput, accept: 'image/*' }, 'fileToBase64'),
+    createElement(ClipCanvas, { base64, clipSize: { width: 160, height: 90 } }),
+  ])
+}
+
+interface Props {
+  base64: string
+  clipSize?: okanvas.Size
+  canvasSize?: okanvas.Size
+}
+
+export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
+  if (!clipSize || !canvasSize) return null
+
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [clipRect, setClipRect] = useState<okanvas.Rectangle>({
     x: 0,
     y: 0,
-    ...size,
+    ...clipSize,
   })
   const [clipRectOrg, setClipRectOrg] = useState<okanvas.Rectangle | null>(null)
   const [dragState, setDragState] = useState<okanvas.DragArgs | null>(null)
@@ -76,24 +92,24 @@ export function ClipDemo() {
   }, [base64])
 
   const scale = useMemo(() => {
-    const { maxRate } = okanvas.getRate(size, image)
+    const { maxRate } = okanvas.getRate(clipSize, image)
     return maxRate
-  }, [size, image])
+  }, [clipSize, image])
 
   const viewBox = useMemo(() => {
-    const rect = okanvas.getCentralizedViewBox(size, image)
+    const rect = okanvas.getCentralizedViewBox(clipSize, image)
     return `${rect.x} ${rect.y} ${rect.width} ${rect.height}`
-  }, [size, image, scale])
+  }, [clipSize, image, scale])
 
   useEffect(() => {
-    const rect = okanvas.getCentralizedViewBox(size, image)
+    const rect = okanvas.getCentralizedViewBox(clipSize, image)
     setClipRect({
       x: rect.x,
       y: rect.y,
-      width: size.width * scale,
-      height: size.height * scale,
+      width: clipSize.width * scale,
+      height: clipSize.height * scale,
     })
-  }, [size, image, scale])
+  }, [clipSize, image, scale])
 
   const imageElm = useMemo(() => {
     if (!image) return null
@@ -125,8 +141,8 @@ export function ClipDemo() {
         beforeDiagonal,
         { x: 0, y: 0 },
         {
-          x: size.width,
-          y: size.height,
+          x: clipSize.width,
+          y: clipSize.height,
         }
       )
       setClipRect({
@@ -135,7 +151,7 @@ export function ClipDemo() {
         height: afterDiagonal.y,
       })
     }
-  }, [clipRectOrg, dragMode, dragState, scale, size])
+  }, [clipRectOrg, dragMode, dragState, scale, clipSize])
 
   const clipRectElm = useMemo(() => {
     if (!image) return null
@@ -193,36 +209,36 @@ export function ClipDemo() {
     )
   }, [image, clipRect, scale])
 
-  return h('div', null, [
-    h('h2', null, 'clipDemo'),
-    h('input', { type: 'file', onInput, accept: 'image/*' }, 'fileToBase64'),
-    h(
-      'div',
-      {
-        style: {
-          width: `${size.width}px`,
-          height: `${size.height}px`,
-          padding: '8px',
-          border: '1px solid #000',
-          backgroundColor: '#ccc',
-          overflow: 'hidden',
-        },
+  return h(
+    'div',
+    {
+      style: {
+        width: `${canvasSize.width}px`,
+        height: `${canvasSize.height}px`,
+        padding: '8px',
+        border: '1px solid #000',
+        backgroundColor: '#ccc',
+        overflow: 'hidden',
       },
-      [
-        h(
-          'svg',
-          {
-            xmlns: 'http://www.w3.org/2000/svg',
-            viewBox,
-            style: {
-              width: '100%',
-              height: '100%',
-              overflow: 'visible',
-            },
+    },
+    [
+      h(
+        'svg',
+        {
+          xmlns: 'http://www.w3.org/2000/svg',
+          viewBox,
+          style: {
+            width: '100%',
+            height: '100%',
+            overflow: 'visible',
           },
-          [imageElm, clipRectElm]
-        ),
-      ]
-    ),
-  ])
+        },
+        [imageElm, clipRectElm]
+      ),
+    ]
+  )
+}
+ClipCanvas.defaultProps = {
+  clipSize: { width: 200, height: 200 },
+  canvasSize: { width: 200, height: 200 },
 }

@@ -5,7 +5,16 @@ import { ClipDemo } from './clip'
 
 const App = () =>
   h('div', null, [
-    createElement(ClipDemo, null),
+    h(
+      'div',
+      {
+        style: {
+          width: '200px',
+          height: '300px',
+        },
+      },
+      [createElement(ClipDemo, null)]
+    ),
     createElement(ReadImageFileDemo, null),
     createElement(ClipImageDemo, null),
     createElement(UseDragDemo, null),
