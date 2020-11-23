@@ -1,4 +1,6 @@
-import { ImageSrc, Rectangle } from './types'
+import { Rectangle } from './types'
+
+export type ImageSrc = string | HTMLImageElement
 
 export function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

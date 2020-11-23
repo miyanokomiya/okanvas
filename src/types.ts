@@ -9,5 +9,3 @@ export interface Rectangle {
   width: number
   height: number
 }
-
-export type ImageSrc = string | HTMLImageElement

@@ -6,11 +6,13 @@ function canTouch(): boolean {
   return 'ontouchstart' in window
 }
 
-export function isTouch(e: MouseEvent | TouchEvent): e is TouchEvent {
+type MouseOrTouchEvent = MouseEvent | TouchEvent
+
+export function isTouch(e: MouseOrTouchEvent): e is TouchEvent {
   return 'touches' in e
 }
 
-export function isMulitTouch(e: MouseEvent | TouchEvent): e is TouchEvent {
+export function isMulitTouch(e: MouseOrTouchEvent): e is TouchEvent {
   return isTouch(e) && e.touches.length > 1
 }
 
@@ -18,7 +20,7 @@ export function isTouchExist(e: TouchEvent): boolean {
   return isTouch(e) && e.touches.length > 0
 }
 
-export function getPagePosition(e: MouseEvent | TouchEvent): Vector {
+export function getPagePosition(e: MouseOrTouchEvent): Vector {
   if (isTouch(e)) {
     return {
       x: e.touches[0].pageX,
@@ -32,7 +34,7 @@ export function getPagePosition(e: MouseEvent | TouchEvent): Vector {
   }
 }
 
-export function getPointInTarget(e: MouseEvent | TouchEvent): Vector {
+export function getPointInTarget(e: MouseOrTouchEvent): Vector {
   const target = e.currentTarget as Element
   if (!target) return { x: 0, y: 0 }
 
@@ -75,21 +77,29 @@ export function getTouchPointsInTarget(e: TouchEvent): Vector[] {
   return ret
 }
 
-export function useDrag(
-  dragCallback: (arg: { base: Vector; p: Vector; d: Vector }) => void,
-  clickCallback: (arg: Vector) => void = () => {}
-): {
-  onDown: (e: MouseEvent | TouchEvent) => void
-  onMove: (e: MouseEvent | TouchEvent) => void
+interface PointerListeners {
+  onDown: (e: MouseOrTouchEvent) => void
+  onMove: (e: MouseOrTouchEvent) => void
   onUp: () => void
-} {
+}
+
+interface DragArgs {
+  base: Vector
+  p: Vector
+  d: Vector
+}
+
+export function useDrag(
+  dragCallback: (arg: DragArgs) => void,
+  clickCallback: (arg: Vector) => void = () => {}
+): PointerListeners {
   let dragging = false
   let base: Vector | null = null
   let past: Vector | null = null
   let current: Vector | null = null
   let downAt = 0
 
-  const onDown = (e: MouseEvent | TouchEvent) => {
+  const onDown = (e: MouseOrTouchEvent) => {
     dragging = true
     base = getPagePosition(e)
     current = { ...base }
@@ -115,7 +125,7 @@ export function useDrag(
     true
   )
 
-  const onMove = (e: MouseEvent | TouchEvent) => {
+  const onMove = (e: MouseOrTouchEvent) => {
     if (!dragging) return
 
     e.preventDefault()
@@ -142,11 +152,7 @@ export function useDrag(
   }
 }
 
-export function useWindowPointerEffect(listeners: {
-  onDown?: (e: MouseEvent | TouchEvent) => void
-  onMove?: (e: MouseEvent | TouchEvent) => void
-  onUp?: () => void
-}) {
+export function useWindowPointerEffect(listeners: Partial<PointerListeners>) {
   const _canTouch = canTouch()
   if (listeners.onDown) {
     window.addEventListener('mousedown', listeners.onDown, false)
