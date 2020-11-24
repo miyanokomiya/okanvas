@@ -26,11 +26,11 @@ async function toImage(src: ImageSrc): Promise<HTMLImageElement> {
   return image
 }
 
-export async function clipImage(
+async function _getClipImageCanvas(
   src: ImageSrc,
   rect: Rectangle,
   size?: { width: number; height: number }
-): Promise<string> {
+) {
   const _size = size ?? { width: rect.width, height: rect.height }
 
   const image = await toImage(src)
@@ -51,7 +51,30 @@ export async function clipImage(
     canvas.width,
     canvas.height
   )
+  return canvas
+}
+
+export async function clipImage(
+  src: ImageSrc,
+  rect: Rectangle,
+  size?: { width: number; height: number }
+): Promise<string> {
+  const canvas = await _getClipImageCanvas(src, rect, size)
   return canvas.toDataURL()
+}
+
+export async function clipImageToBlob(
+  src: ImageSrc,
+  rect: Rectangle,
+  size?: { width: number; height: number }
+): Promise<Blob> {
+  const canvas = await _getClipImageCanvas(src, rect, size)
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob)
+      reject(new Error('Failed to create blob.'))
+    }, 'image/png')
+  })
 }
 
 export async function drawRectOnImage(
