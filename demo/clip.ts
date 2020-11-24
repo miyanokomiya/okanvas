@@ -117,7 +117,7 @@ export function ClipCanvas({ base64, clipSize, viewSize }: Props) {
       width: image.width,
       height: image.height,
     })
-  }, [image])
+  }, [base64, image])
 
   useEffect(() => {
     if (!dragMode) return
@@ -152,59 +152,11 @@ export function ClipCanvas({ base64, clipSize, viewSize }: Props) {
 
   const clipRectElm = useMemo(() => {
     if (!image) return null
-    return h(
-      'g',
-      {
-        transform: `translate(${clipRect.x}, ${clipRect.y})`,
-      },
-      [
-        h('rect', {
-          x: 0,
-          y: 0,
-          width: clipRect.width,
-          height: clipRect.height,
-          fill: 'none',
-          stroke: 'red',
-          'stroke-width': 4 * scale,
-        }),
-        h(
-          'g',
-          {
-            ...(dragListeners
-              ? { onMouseDown: onStartMove, onTouchStart: onStartMove }
-              : {}),
-          },
-          [
-            h('circle', {
-              cx: 0,
-              cy: 0,
-              r: 8 * scale,
-              fill: 'red',
-              stroke: 'none',
-            }),
-          ]
-        ),
-        h(
-          'g',
-          {
-            transform: `translate(${clipRect.width}, ${clipRect.height})`,
-            ...(dragListeners
-              ? { onMouseDown: onStartResize, onTouchStart: onStartResize }
-              : {}),
-          },
-          [
-            h('circle', {
-              cx: 0,
-              cy: 0,
-              r: 8 * scale,
-              fill: 'red',
-              stroke: 'none',
-            }),
-          ]
-        ),
-      ]
-    )
-  }, [image, clipRect, scale])
+    return getClipRectElm(clipRect, scale, {
+      onStartMove,
+      onStartResize,
+    })
+  }, [image, clipRect, scale, onStartMove, onStartResize])
 
   return h(
     'div',
@@ -238,4 +190,64 @@ export function ClipCanvas({ base64, clipSize, viewSize }: Props) {
 ClipCanvas.defaultProps = {
   clipSize: { width: 200, height: 200 },
   viewSize: { width: 200, height: 200 },
+}
+
+function getClipRectElm(
+  clipRect: okanvas.Rectangle,
+  scale: number,
+  listeners?: {
+    onStartMove?: (e: MouseEvent | TouchEvent) => void
+    onStartResize?: (e: MouseEvent | TouchEvent) => void
+  }
+) {
+  return h(
+    'g',
+    {
+      transform: `translate(${clipRect.x}, ${clipRect.y})`,
+    },
+    [
+      h('rect', {
+        x: 0,
+        y: 0,
+        width: clipRect.width,
+        height: clipRect.height,
+        fill: 'none',
+        stroke: 'red',
+        'stroke-width': 4 * scale,
+      }),
+      h(
+        'g',
+        {
+          onMouseDown: listeners?.onStartMove,
+          onTouchStart: listeners?.onStartMove,
+        },
+        [
+          h('circle', {
+            cx: 0,
+            cy: 0,
+            r: 8 * scale,
+            fill: 'red',
+            stroke: 'none',
+          }),
+        ]
+      ),
+      h(
+        'g',
+        {
+          transform: `translate(${clipRect.width}, ${clipRect.height})`,
+          onMouseDown: listeners?.onStartResize,
+          onTouchStart: listeners?.onStartResize,
+        },
+        [
+          h('circle', {
+            cx: 0,
+            cy: 0,
+            r: 8 * scale,
+            fill: 'red',
+            stroke: 'none',
+          }),
+        ]
+      ),
+    ]
+  )
 }
