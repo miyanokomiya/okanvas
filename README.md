@@ -8,7 +8,9 @@ some utils for a canvas
 https://miyanokomiya.github.io/okanvas/
 
 ## usage
-TODO: publish npm
+```sh
+$ yarn add okanvas
+```
 
 ## commnad
 
