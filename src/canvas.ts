@@ -56,6 +56,8 @@ export function getCentralizedViewBox(
   viewSize: Size,
   objectSize: Size | null
 ): Rectangle {
+  if (!objectSize) return { ...viewSize, x: 0, y: 0 }
+
   const { rateW, rateH } = getRate(viewSize, objectSize)
   const viewBoxSize = getViewBoxSize(objectSize, rateW, rateH)
   const viewBoxMargin = getViewBoxMargin(viewBoxSize, objectSize)
