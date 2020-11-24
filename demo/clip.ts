@@ -29,11 +29,11 @@ export function ClipDemo() {
 interface Props {
   base64: string
   clipSize?: okanvas.Size
-  canvasSize?: okanvas.Size
+  viewSize?: okanvas.Size
 }
 
-export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
-  if (!clipSize || !canvasSize) return null
+export function ClipCanvas({ base64, clipSize, viewSize }: Props) {
+  if (!clipSize || !viewSize) return null
 
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [clipRect, setClipRect] = useState<okanvas.Rectangle>({
@@ -91,23 +91,22 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
     })
   }, [base64])
 
-  const scale = useMemo(() => {
-    const { maxRate } = okanvas.getRate(clipSize, image)
-    return maxRate
-  }, [clipSize, image])
-  const viewScale = useMemo(() => {
-    const { maxRate } = okanvas.getRate(canvasSize, clipSize)
-    return maxRate
-  }, [canvasSize, clipSize, image, scale])
-
-  const viewBox = useMemo(() => {
-    const rect = okanvas.getCentralizedViewBox(clipSize, image)
-    return `${rect.x} ${rect.y} ${rect.width} ${rect.height}`
-  }, [clipSize, image])
-
   useEffect(() => {
     setClipRect(okanvas.getCentralizedViewBox(clipSize, image))
   }, [clipSize, image])
+
+  const viewBoxRect = useMemo(() => {
+    return okanvas.getCentralizedViewBox(clipSize, image)
+  }, [clipSize, image])
+
+  const viewBox = useMemo(() => {
+    return `${viewBoxRect.x} ${viewBoxRect.y} ${viewBoxRect.width} ${viewBoxRect.height}`
+  }, [viewBoxRect])
+
+  const scale = useMemo(() => {
+    const { maxRate } = okanvas.getRate(viewSize, viewBoxRect)
+    return maxRate
+  }, [viewSize, viewBoxRect])
 
   const imageElm = useMemo(() => {
     if (!image) return null
@@ -127,21 +126,13 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
     if (dragMode === 'move') {
       setClipRect({
         ...clipRectOrg,
-        x:
-          clipRectOrg.x +
-          (dragState.p.x - dragState.base.x) * scale * viewScale,
-        y:
-          clipRectOrg.y +
-          (dragState.p.y - dragState.base.y) * scale * viewScale,
+        x: clipRectOrg.x + (dragState.p.x - dragState.base.x) * scale,
+        y: clipRectOrg.y + (dragState.p.y - dragState.base.y) * scale,
       })
     } else if (dragMode === 'resize') {
       const beforeDiagonal = {
-        x:
-          clipRectOrg.width +
-          (dragState.p.x - dragState.base.x) * scale * viewScale,
-        y:
-          clipRectOrg.height +
-          (dragState.p.y - dragState.base.y) * scale * viewScale,
+        x: clipRectOrg.width + (dragState.p.x - dragState.base.x) * scale,
+        y: clipRectOrg.height + (dragState.p.y - dragState.base.y) * scale,
       }
       const afterDiagonal = getPedal(
         beforeDiagonal,
@@ -219,8 +210,8 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
     'div',
     {
       style: {
-        width: `${canvasSize.width}px`,
-        height: `${canvasSize.height}px`,
+        width: `${viewSize.width}px`,
+        height: `${viewSize.height}px`,
         padding: '8px',
         border: '1px solid #000',
         backgroundColor: '#ccc',
@@ -246,5 +237,5 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
 }
 ClipCanvas.defaultProps = {
   clipSize: { width: 200, height: 200 },
-  canvasSize: { width: 200, height: 200 },
+  viewSize: { width: 200, height: 200 },
 }
