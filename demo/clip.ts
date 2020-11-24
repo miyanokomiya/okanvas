@@ -95,21 +95,19 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
     const { maxRate } = okanvas.getRate(clipSize, image)
     return maxRate
   }, [clipSize, image])
+  const viewScale = useMemo(() => {
+    const { maxRate } = okanvas.getRate(canvasSize, clipSize)
+    return maxRate
+  }, [canvasSize, clipSize, image, scale])
 
   const viewBox = useMemo(() => {
     const rect = okanvas.getCentralizedViewBox(clipSize, image)
     return `${rect.x} ${rect.y} ${rect.width} ${rect.height}`
-  }, [clipSize, image, scale])
+  }, [clipSize, image])
 
   useEffect(() => {
-    const rect = okanvas.getCentralizedViewBox(clipSize, image)
-    setClipRect({
-      x: rect.x,
-      y: rect.y,
-      width: clipSize.width * scale,
-      height: clipSize.height * scale,
-    })
-  }, [clipSize, image, scale])
+    setClipRect(okanvas.getCentralizedViewBox(clipSize, image))
+  }, [clipSize, image])
 
   const imageElm = useMemo(() => {
     if (!image) return null
@@ -129,13 +127,21 @@ export function ClipCanvas({ base64, clipSize, canvasSize }: Props) {
     if (dragMode === 'move') {
       setClipRect({
         ...clipRectOrg,
-        x: clipRectOrg.x + (dragState.p.x - dragState.base.x) * scale,
-        y: clipRectOrg.y + (dragState.p.y - dragState.base.y) * scale,
+        x:
+          clipRectOrg.x +
+          (dragState.p.x - dragState.base.x) * scale * viewScale,
+        y:
+          clipRectOrg.y +
+          (dragState.p.y - dragState.base.y) * scale * viewScale,
       })
     } else if (dragMode === 'resize') {
       const beforeDiagonal = {
-        x: clipRectOrg.width + (dragState.p.x - dragState.base.x) * scale,
-        y: clipRectOrg.height + (dragState.p.y - dragState.base.y) * scale,
+        x:
+          clipRectOrg.width +
+          (dragState.p.x - dragState.base.x) * scale * viewScale,
+        y:
+          clipRectOrg.height +
+          (dragState.p.y - dragState.base.y) * scale * viewScale,
       }
       const afterDiagonal = getPedal(
         beforeDiagonal,

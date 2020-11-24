@@ -10,7 +10,7 @@ const App = () =>
       {
         style: {
           width: '200px',
-          height: '300px',
+          height: '301px',
         },
       },
       [createElement(ClipDemo, null)]
