@@ -1,7 +1,5 @@
 import * as target from '../src/events'
 
-jest.mock('just-throttle', () => (fn: () => void) => () => fn())
-
 describe('events', () => {
   const currentTarget = {
     getBoundingClientRect: () => ({

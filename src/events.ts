@@ -1,7 +1,5 @@
-import throttle from 'just-throttle'
 import type { Vector } from './types'
 
-const THROTTLE = 1000 / 60
 function canTouch(): boolean {
   return 'ontouchstart' in window
 }
@@ -107,30 +105,19 @@ export function useDrag(
     downAt = Date.now()
   }
 
-  const throttleedCallback = throttle(
-    () => {
-      if (!dragging) return
-      if (!base) return
-      if (!current) return
-      if (!past) return
-
-      dragCallback({
-        base,
-        p: { ...current },
-        d: { x: current.x - past.x, y: current.y - past.y },
-      })
-      past = { ...current }
-    },
-    THROTTLE,
-    true
-  )
-
   const onMove = (e: MouseOrTouchEvent) => {
     if (!dragging) return
 
     e.preventDefault()
     current = getPagePosition(e)
-    throttleedCallback()
+    if (!dragging || !base || !current || !past) return
+
+    dragCallback({
+      base,
+      p: { ...current },
+      d: { x: current.x - past.x, y: current.y - past.y },
+    })
+    past = { ...current }
   }
 
   const onUp = () => {
