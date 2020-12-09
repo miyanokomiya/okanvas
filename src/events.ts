@@ -121,8 +121,6 @@ export function useDrag(
   const onUp = () => {
     if (current && Date.now() - downAt < 100) {
       clickCallback({ ...current })
-    } else if (dragging && base && current) {
-      dragCallback({ base, p: { ...current }, d: { x: 0, y: 0 } })
     }
     dragging = false
     base = null

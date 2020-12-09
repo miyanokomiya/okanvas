@@ -105,7 +105,7 @@ describe('events', () => {
       Date.now = () => 100
       dragState.onUp()
       expect(preventDefault).toHaveBeenCalledTimes(2)
-      expect(onDrag).toHaveBeenCalledTimes(3)
+      expect(onDrag).toHaveBeenCalledTimes(2)
       expect(onDrag).toHaveBeenNthCalledWith(1, {
         base: { x: 110, y: 220 },
         p: { x: 111, y: 222 },
@@ -115,11 +115,6 @@ describe('events', () => {
         base: { x: 110, y: 220 },
         p: { x: 115, y: 227 },
         d: { x: 4, y: 5 },
-      })
-      expect(onDrag).toHaveBeenNthCalledWith(3, {
-        base: { x: 110, y: 220 },
-        p: { x: 115, y: 227 },
-        d: { x: 0, y: 0 },
       })
     })
     it('emulate click', () => {
