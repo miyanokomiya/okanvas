@@ -19,17 +19,15 @@ export function isTouchExist(e: TouchEvent): boolean {
 }
 
 export function getPagePosition(e: MouseOrTouchEvent): Vector {
-  if (isTouch(e)) {
-    return {
-      x: e.touches[0].pageX,
-      y: e.touches[0].pageY,
-    }
-  } else {
-    return {
-      x: e.pageX,
-      y: e.pageY,
-    }
-  }
+  return isTouch(e)
+    ? {
+        x: e.touches[0].pageX,
+        y: e.touches[0].pageY,
+      }
+    : {
+        x: e.pageX,
+        y: e.pageY,
+      }
 }
 
 export function getPointInTarget(e: MouseOrTouchEvent): Vector {
