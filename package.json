@@ -11,8 +11,10 @@
   "private": false,
   "scripts": {
     "demo": "parcel demo/index.html",
-    "lint": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
-    "lint:fix": "yarn eslint --fix ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
+    "lint:es": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts",
+    "lint:json": "yarn prettier -c ./*.json ./.*.json",
+    "lint": "yarn lint:es && yarn lint:json",
+    "lint:fix": "yarn lint:es --fix && yarn lint:json --write",
     "test": "jest --coverage",
     "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
     "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url .",
