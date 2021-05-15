@@ -43,10 +43,8 @@ export function ClipCanvas({ base64, clipSize, viewSize }: Props) {
   })
   const [clipRectOrg, setClipRectOrg] = useState<okanvas.Rectangle | null>(null)
   const [dragState, setDragState] = useState<okanvas.DragArgs | null>(null)
-  const [
-    dragListeners,
-    setDragListeners,
-  ] = useState<okanvas.PointerListeners | null>(null)
+  const [dragListeners, setDragListeners] =
+    useState<okanvas.PointerListeners | null>(null)
   const [dragMode, setDragMode] = useState<'' | 'move' | 'resize'>('')
 
   useEffect(() => {
