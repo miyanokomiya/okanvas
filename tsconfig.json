@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "esnext",
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "typeRoots": ["node_modules/@types"],
     "declaration": true,
-    "lib": ["dom", "es2015"],
+    "declarationMap": true,
+    "lib": ["dom", "esnext"],
     "noEmit": true
   }
 }
