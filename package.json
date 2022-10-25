@@ -1,6 +1,6 @@
 {
   "name": "okanvas",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./dist/okanvas.js",
   "module": "./dist/okanvas.mjs",
   "types": "./dist/okanvas.d.ts",
