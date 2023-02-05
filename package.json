@@ -55,7 +55,9 @@
     "default": {
       "source": "./demo/index.html",
       "distDir": "./dist-demo",
-      "publicUrl": "."
+      "publicUrl": ".",
+      "optimize": false,
+      "scopeHoist": false
     }
   }
 }
