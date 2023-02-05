@@ -45,6 +45,7 @@ typings/
 .envrc
 
 .cache
+.parcel-cache
 .DS_Store
 dist
 dist-demo
