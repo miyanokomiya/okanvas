@@ -10,14 +10,14 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "demo": "parcel demo/index.html",
     "lint:es": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts",
     "lint:json": "yarn prettier -c ./*.json ./.*.json",
     "lint": "yarn lint:es && yarn lint:json",
     "lint:fix": "yarn lint:es --fix && yarn lint:json --write",
     "test": "jest --coverage",
     "build": "rm -rf ./dist && yarn rollup -c",
-    "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url .",
+    "demo": "parcel",
+    "build:demo": "rm -rf ./dist-demo && parcel build",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
@@ -47,5 +47,15 @@
     "ts-jest": "^29.0.5",
     "typescript": "^4.9.5"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "targets": {
+    "main": false,
+    "module": false,
+    "types": false,
+    "default": {
+      "source": "./demo/index.html",
+      "distDir": "./dist-demo",
+      "publicUrl": "."
+    }
+  }
 }
